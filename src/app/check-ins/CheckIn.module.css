@@ -1,0 +1,138 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.quarterSelector {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.quarterBtn {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid var(--surface-border);
+  color: var(--foreground);
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.quarterBtn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.quarterBtn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.goalCard {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+}
+
+.goalHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.goalHeader h3 {
+  font-size: 1.2rem;
+  color: var(--foreground);
+  margin-bottom: 0.3rem;
+}
+
+.goalDetails {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.detailLabel {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.detailValue {
+  font-weight: 500;
+  color: var(--primary);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 150px;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.inputGroup label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.scoreCircle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  border: 4px solid var(--primary);
+  color: var(--primary);
+}
+
+.managerComment {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-left: 4px solid var(--success);
+  border-radius: var(--radius-sm);
+}
+
+.managerComment p {
+  font-size: 0.9rem;
+  color: var(--foreground);
+}
+
+.btnPrimary {
+  background: var(--primary);
+  color: white;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.btnPrimary:hover {
+  background: var(--primary-hover);
+}
+
+.emptyState {
+  background: var(--surface);
+  border: 1px dashed var(--surface-border);
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  color: rgba(255, 255, 255, 0.6);
+}

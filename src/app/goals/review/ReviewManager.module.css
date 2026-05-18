@@ -1,0 +1,123 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.emptyState {
+  background: var(--surface);
+  border: 1px dashed var(--surface-border);
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.employeeCard {
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.employeeHeader {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--surface-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employeeHeader h2 {
+  font-size: 1.25rem;
+  color: var(--primary);
+  margin-bottom: 0.2rem;
+}
+
+.employeeHeader p {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.goalsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.goalsTable th, .goalsTable td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.goalsTable th {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+}
+
+.inlineInput {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--surface-border);
+  color: var(--foreground);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  width: 100px;
+  font-family: inherit;
+}
+
+.inlineInput:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.actions {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.weightError {
+  color: var(--danger);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnPrimary {
+  background: var(--success);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.btnPrimary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btnDanger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.btnDanger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+}
