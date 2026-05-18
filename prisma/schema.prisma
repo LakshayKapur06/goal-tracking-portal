@@ -84,6 +84,8 @@ model Goal {
 
   checkIns    CheckIn[]
   auditLogs   AuditLog[]
+
+  @@index([employeeId])
 }
 
 model SharedGoal {
@@ -121,6 +123,9 @@ model AuditLog {
   goal         Goal?    @relation(fields: [goalId], references: [id])
   changes      String   // JSON stringified
   timestamp    DateTime @default(now())
+
+  @@index([userId])
+  @@index([goalId])
 }
 
 model NotificationLog {
@@ -131,6 +136,8 @@ model NotificationLog {
   message   String
   status    String   // PENDING, SENT, FAILED
   timestamp DateTime @default(now())
+
+  @@index([userId])
 }
 
 model CycleWindow {
