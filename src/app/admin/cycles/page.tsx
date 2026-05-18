@@ -7,7 +7,7 @@ export default async function ManageCyclesPage() {
   if (!session || session.user.role !== "ADMIN") return null;
 
   const cycles = await prisma.cycleWindow.findMany({
-    orderBy: { phase: 'asc' } // In a real app we might want a specific order or order by ID
+    orderBy: { phase: 'asc' }
   });
 
   return (

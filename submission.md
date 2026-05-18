@@ -8,30 +8,28 @@
 
 ## Architecture Diagram
 
-*(You can copy and paste the code block below into [Mermaid Live Editor](https://mermaid.live/) to generate an image file, or if your submission format supports Markdown, it will automatically render into a diagram!)*
-
 ```mermaid
 graph TD
     %% User Interfaces
     subgraph "Frontend Client (React/Next.js UI)"
-        A[Login / SSO]
-        B[Employee Dashboard]
-        C[Manager Dashboard]
-        D[Admin Dashboard]
+        A["Login / SSO"]
+        B["Employee Dashboard"]
+        C["Manager Dashboard"]
+        D["Admin Dashboard"]
     end
 
     %% API & Server Logic
     subgraph "Backend Server (Next.js App Router)"
-        E[Auth.js Middleware & JWT Sessions]
-        F[Server Actions / API Routes]
-        G[Prisma ORM (Data Access Layer)]
+        E["Auth.js Middleware & JWT Sessions"]
+        F["Server Actions / API Routes"]
+        G["Prisma ORM (Data Access Layer)"]
     end
 
     %% Database & External Services
     subgraph "Infrastructure Layer"
-        H[(Supabase PostgreSQL)]
-        I[Azure AD / Microsoft Entra ID]
-        J[Vercel Edge Network]
+        H[("Supabase PostgreSQL")]
+        I["Azure AD / Microsoft Entra ID"]
+        J["Vercel Edge Network"]
     end
 
     %% Data Flow Connections
