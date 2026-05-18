@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# AI Instruction Notes
+Claude.md
+agents.md
