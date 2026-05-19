@@ -2,6 +2,16 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+// Sanitize cell values to prevent CSV injection attacks
+function sanitizeCSV(val: string): string {
+  if (!val) return '""';
+  // Escape embedded double quotes
+  const escaped = val.replace(/"/g, '""');
+  // Strip leading formula characters that could trigger code execution in Excel
+  const safe = escaped.replace(/^[=+\-@\t\r]/g, "'");
+  return `"${safe}"`;
+}
+
 export async function GET() {
   const session = await auth();
   if (!session || session.user.role !== "ADMIN") {
@@ -24,18 +34,18 @@ export async function GET() {
     const q4 = goal.checkIns.find(c => c.quarter === 'Q4')?.actualAchievement || "";
 
     const row = [
-      `"${goal.employee.name}"`,
-      `"${goal.employee.email}"`,
-      `"${goal.title}"`,
-      `"${goal.thrustArea}"`,
-      `"${goal.uomType}"`,
-      `"${goal.target}"`,
+      sanitizeCSV(goal.employee.name || ""),
+      sanitizeCSV(goal.employee.email || ""),
+      sanitizeCSV(goal.title),
+      sanitizeCSV(goal.thrustArea),
+      sanitizeCSV(goal.uomType),
+      sanitizeCSV(goal.target),
       goal.weightage,
-      `"${goal.status}"`,
-      `"${q1}"`,
-      `"${q2}"`,
-      `"${q3}"`,
-      `"${q4}"`
+      sanitizeCSV(goal.status),
+      sanitizeCSV(q1),
+      sanitizeCSV(q2),
+      sanitizeCSV(q3),
+      sanitizeCSV(q4)
     ].join(",");
 
     csvContent += row + "\n";

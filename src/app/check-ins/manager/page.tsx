@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import ManagerCheckIn from "./ManagerCheckIn";
 
 export default async function ManagerCheckInPage() {
   const session = await auth();
-  if (!session || session.user.role !== "MANAGER") return null;
+  if (!session) redirect("/login");
+  if (session.user.role !== "MANAGER") redirect("/dashboard");
 
   // Get employees reporting to this manager
   const team = await prisma.user.findMany({

@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import GoalManager from "./GoalManager";
 
 export default async function GoalsCreatePage() {
   const session = await auth();
-  if (!session || session.user.role !== "EMPLOYEE") return null;
+  if (!session) redirect("/login");
+  if (session.user.role !== "EMPLOYEE") redirect("/dashboard");
 
   const goals = await prisma.goal.findMany({
     where: { employeeId: session.user.id },

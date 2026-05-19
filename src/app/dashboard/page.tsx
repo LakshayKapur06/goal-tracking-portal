@@ -11,7 +11,7 @@ export default async function DashboardPage() {
 
   const { id: userId, role, name } = session.user;
 
-  let stats = {
+  const stats = {
     totalGoals: 0,
     pendingGoals: 0,
     completedGoals: 0,

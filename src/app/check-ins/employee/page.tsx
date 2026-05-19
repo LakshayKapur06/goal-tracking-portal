@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import EmployeeCheckIn from "./EmployeeCheckIn";
 
 export default async function EmployeeCheckInPage() {
   const session = await auth();
-  if (!session || session.user.role !== "EMPLOYEE") return null;
+  if (!session) redirect("/login");
+  if (session.user.role !== "EMPLOYEE") redirect("/dashboard");
 
   // Fetch approved goals
   const goals = await prisma.goal.findMany({

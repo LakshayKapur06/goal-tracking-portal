@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import ReviewManager from "./ReviewManager";
 
 export default async function ManagerReviewPage() {
   const session = await auth();
-  if (!session || session.user.role !== "MANAGER") return null;
+  if (!session) redirect("/login");
+  if (session.user.role !== "MANAGER") redirect("/dashboard");
 
   // Get employees reporting to this manager
   const team = await prisma.user.findMany({

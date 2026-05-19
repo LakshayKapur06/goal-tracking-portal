@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import CycleManager from "./CycleManager";
 
 export default async function ManageCyclesPage() {
   const session = await auth();
-  if (!session || session.user.role !== "ADMIN") return null;
+  if (!session) redirect("/login");
+  if (session.user.role !== "ADMIN") redirect("/dashboard");
 
   const cycles = await prisma.cycleWindow.findMany({
     orderBy: { phase: 'asc' }

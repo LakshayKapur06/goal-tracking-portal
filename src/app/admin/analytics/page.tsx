@@ -1,10 +1,12 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import AnalyticsClient from "./AnalyticsClient";
 
 export default async function AdminAnalyticsPage() {
   const session = await auth();
-  if (!session || session.user.role !== "ADMIN") return null;
+  if (!session) redirect("/login");
+  if (session.user.role !== "ADMIN") redirect("/dashboard");
 
   const totalEmployees = await prisma.user.count({ where: { role: "EMPLOYEE" } });
   const totalGoals = await prisma.goal.count();
