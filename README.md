@@ -184,4 +184,4 @@ prisma/
 
 ## 📄 License
 
-Built for the Atomberg Hackathon. All rights reserved.
+Built for the AtomQuest Hackathon 2026. All rights reserved.
