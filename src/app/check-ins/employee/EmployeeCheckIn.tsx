@@ -6,7 +6,23 @@ import { computeProgressScore } from "@/lib/utils";
 import styles from "../CheckIn.module.css";
 import { MessageSquare } from "lucide-react";
 
-export default function EmployeeCheckIn({ goals }: { goals: any[] }) {
+export interface CheckIn {
+  quarter: string;
+  actualAchievement?: string | null;
+  progressStatus: string;
+  managerComment?: string | null;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  uomType: string;
+  target: string;
+  weightage: number;
+  checkIns?: CheckIn[];
+}
+
+export default function EmployeeCheckIn({ goals }: { goals: Goal[] }) {
   const [activeQuarter, setActiveQuarter] = useState("Q1");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -19,9 +35,9 @@ export default function EmployeeCheckIn({ goals }: { goals: any[] }) {
     );
   }
 
-  const handleSave = async (goalId: string, e: any) => {
+  const handleSave = async (goalId: string, e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const form = new FormData(e.target);
+    const form = new FormData(e.currentTarget);
     const actual = form.get("actual") as string;
     const status = form.get("status") as string;
 
@@ -31,8 +47,8 @@ export default function EmployeeCheckIn({ goals }: { goals: any[] }) {
       // For a quick visual update without a full reload, we might normally use React state,
       // but for this hackathon context, reload is safer to sync.
       window.location.reload();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
       setLoadingId(null);
     }
   };
@@ -52,8 +68,8 @@ export default function EmployeeCheckIn({ goals }: { goals: any[] }) {
       </div>
 
       {goals.map(goal => {
-        const checkIn = goal.checkIns?.find((c: any) => c.quarter === activeQuarter) || { actualAchievement: "", progressStatus: "NOT_STARTED" };
-        const score = computeProgressScore(goal.uomType, goal.target, checkIn.actualAchievement);
+        const checkIn = goal.checkIns?.find((c: CheckIn) => c.quarter === activeQuarter) || { quarter: activeQuarter, actualAchievement: "", progressStatus: "NOT_STARTED", managerComment: "" };
+        const score = computeProgressScore(goal.uomType, goal.target, checkIn.actualAchievement || "");
         
         return (
           <div key={goal.id} className={styles.goalCard}>
@@ -89,7 +105,7 @@ export default function EmployeeCheckIn({ goals }: { goals: any[] }) {
                 <input 
                   name="actual"
                   required
-                  defaultValue={checkIn.actualAchievement}
+                  defaultValue={checkIn.actualAchievement || ""}
                   placeholder={`Your actual ${goal.uomType === 'TIMELINE' ? 'date' : 'number'}`}
                   type={goal.uomType === 'TIMELINE' ? 'date' : 'text'}
                 />

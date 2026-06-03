@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { toggleCycleWindow } from "@/app/actions/adminActions";
 
-export default function CycleManager({ cycles }: { cycles: any[] }) {
+export interface Cycle {
+  id: string;
+  phase: string;
+  status: string;
+  updatedAt: Date | string;
+}
+
+export default function CycleManager({ cycles }: { cycles: Cycle[] }) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleToggle = async (id: string, currentStatus: string) => {
@@ -11,8 +18,9 @@ export default function CycleManager({ cycles }: { cycles: any[] }) {
     const newStatus = currentStatus === "ACTIVE" ? "CLOSED" : "ACTIVE";
     try {
       await toggleCycleWindow(id, newStatus);
-    } catch (err: any) {
-      alert(err.message);
+      window.location.reload();
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
     } finally {
       setLoadingId(null);
     }

@@ -23,7 +23,16 @@ ChartJS.register(
   ArcElement
 );
 
-export default function AnalyticsClient({ stats }: { stats: any }) {
+export interface AnalyticsStats {
+  totalEmployees: number;
+  totalGoals: number;
+  draftGoals: number;
+  pendingGoals: number;
+  lockedGoals: number;
+  thrustAreaDistribution: Record<string, number>;
+}
+
+export default function AnalyticsClient({ stats }: { stats: AnalyticsStats }) {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,

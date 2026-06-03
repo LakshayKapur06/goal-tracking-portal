@@ -8,15 +8,16 @@ export default async function AdminAnalyticsPage() {
   if (!session) redirect("/login");
   if (session.user.role !== "ADMIN") redirect("/dashboard");
 
-  const totalEmployees = await prisma.user.count({ where: { role: "EMPLOYEE" } });
-  const totalGoals = await prisma.goal.count();
-  const draftGoals = await prisma.goal.count({ where: { status: "DRAFT" } });
-  const pendingGoals = await prisma.goal.count({ where: { status: "PENDING_APPROVAL" } });
-  const lockedGoals = await prisma.goal.count({ where: { status: "LOCKED" } });
+  const [totalEmployees, totalGoals, draftGoals, pendingGoals, lockedGoals, goals] = await Promise.all([
+    prisma.user.count({ where: { role: "EMPLOYEE" } }),
+    prisma.goal.count(),
+    prisma.goal.count({ where: { status: "DRAFT" } }),
+    prisma.goal.count({ where: { status: "PENDING_APPROVAL" } }),
+    prisma.goal.count({ where: { status: "LOCKED" } }),
+    prisma.goal.findMany({ select: { thrustArea: true } }),
+  ]);
 
-  // Get Thrust Area distribution
-  const goals = await prisma.goal.findMany({ select: { thrustArea: true } });
-  const thrustAreaDistribution = goals.reduce((acc: any, goal) => {
+  const thrustAreaDistribution = goals.reduce((acc: Record<string, number>, goal) => {
     acc[goal.thrustArea] = (acc[goal.thrustArea] || 0) + 1;
     return acc;
   }, {});

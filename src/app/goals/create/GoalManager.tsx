@@ -5,8 +5,18 @@ import { saveGoal, deleteGoal, submitGoalsForApproval } from "@/app/actions/goal
 import styles from "./GoalManager.module.css";
 import { Plus, Trash2, Edit2, AlertCircle } from "lucide-react";
 
-export default function GoalManager({ initialGoals, isSubmitted }: { initialGoals: any[], isSubmitted: boolean }) {
-  const [goals, setGoals] = useState(initialGoals);
+export interface Goal {
+  id: string;
+  title: string;
+  description?: string | null;
+  thrustArea: string;
+  uomType: string;
+  target: string;
+  weightage: number;
+}
+
+export default function GoalManager({ initialGoals, isSubmitted }: { initialGoals: Goal[], isSubmitted: boolean }) {
+  const goals = initialGoals;
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -23,7 +33,7 @@ export default function GoalManager({ initialGoals, isSubmitted }: { initialGoal
 
   const totalWeight = goals.reduce((sum, g) => sum + g.weightage, 0);
 
-  const handleEdit = (goal: any) => {
+  const handleEdit = (goal: Goal) => {
     setEditingId(goal.id);
     setFormData({
       title: goal.title,
@@ -66,10 +76,10 @@ export default function GoalManager({ initialGoals, isSubmitted }: { initialGoal
     }
 
     try {
-      await saveGoal({ id: editingId, ...formData });
+      await saveGoal({ id: editingId || undefined, ...formData });
       window.location.reload(); // Quick way to sync server state for hackathon
-    } catch (err: any) {
-      setError(err.message || "Failed to save goal.");
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message || "Failed to save goal.");
       setLoading(false);
     }
   };
@@ -80,8 +90,8 @@ export default function GoalManager({ initialGoals, isSubmitted }: { initialGoal
     try {
       await deleteGoal(id);
       window.location.reload();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
       setLoading(false);
     }
   };
@@ -95,8 +105,8 @@ export default function GoalManager({ initialGoals, isSubmitted }: { initialGoal
     try {
       await submitGoalsForApproval();
       window.location.reload();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
       setLoading(false);
     }
   };

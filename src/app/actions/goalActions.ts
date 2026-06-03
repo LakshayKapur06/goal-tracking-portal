@@ -4,7 +4,17 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
-export async function saveGoal(data: any) {
+export interface GoalInput {
+  id?: string;
+  title: string;
+  description?: string;
+  thrustArea: string;
+  uomType: string;
+  target: string;
+  weightage: string | number;
+}
+
+export async function saveGoal(data: GoalInput) {
   const session = await auth();
   if (!session || session.user.role !== "EMPLOYEE") throw new Error("Unauthorized");
 
@@ -14,7 +24,7 @@ export async function saveGoal(data: any) {
     // Update existing
     await prisma.goal.update({
       where: { id, employeeId: session.user.id, status: "DRAFT" },
-      data: { title, description, thrustArea, uomType, target, weightage: parseFloat(weightage) }
+      data: { title, description, thrustArea, uomType, target, weightage: typeof weightage === 'string' ? parseFloat(weightage) : weightage }
     });
   } else {
     // Check max goals limit
@@ -29,7 +39,7 @@ export async function saveGoal(data: any) {
         thrustArea,
         uomType,
         target,
-        weightage: parseFloat(weightage),
+        weightage: typeof weightage === 'string' ? parseFloat(weightage) : weightage,
         status: "DRAFT"
       }
     });
@@ -66,7 +76,7 @@ export async function submitGoalsForApproval() {
     totalWeight += g.weightage;
   }
 
-  if (totalWeight !== 100) throw new Error(`Total weightage must be exactly 100%. Current: ${totalWeight}%`);
+  if (Math.abs(totalWeight - 100) > 0.01) throw new Error(`Total weightage must be exactly 100%. Current: ${totalWeight}%`);
 
   await prisma.goal.updateMany({
     where: { employeeId: session.user.id, status: "DRAFT" },

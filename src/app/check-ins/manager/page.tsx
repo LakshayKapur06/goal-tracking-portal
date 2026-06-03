@@ -8,26 +8,22 @@ export default async function ManagerCheckInPage() {
   if (!session) redirect("/login");
   if (session.user.role !== "MANAGER") redirect("/dashboard");
 
-  // Get employees reporting to this manager
-  const team = await prisma.user.findMany({
+  // Get employees with locked goals and check-ins in a single query
+  const teamWithGoals = await prisma.user.findMany({
     where: { managerId: session.user.id },
-    select: { id: true, name: true, email: true }
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      goals: {
+        where: { status: "LOCKED" },
+        include: { checkIns: true },
+        orderBy: { createdAt: 'asc' }
+      }
+    }
   });
 
-  const teamIds = team.map(t => t.id);
-
-  // Get locked goals for these employees with check-ins
-  const goals = await prisma.goal.findMany({
-    where: { employeeId: { in: teamIds }, status: "LOCKED" },
-    include: { checkIns: true },
-    orderBy: { createdAt: 'asc' }
-  });
-
-  // Attach goals to employees
-  const employeesWithGoals = team.map(emp => ({
-    ...emp,
-    goals: goals.filter(g => g.employeeId === emp.id)
-  })).filter(emp => emp.goals.length > 0);
+  const employeesWithGoals = teamWithGoals.filter(emp => emp.goals.length > 0);
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>

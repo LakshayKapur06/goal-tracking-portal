@@ -19,19 +19,33 @@ export default async function DashboardPage() {
   };
 
   if (role === "EMPLOYEE") {
-    stats.totalGoals = await prisma.goal.count({ where: { employeeId: userId } });
-    stats.pendingGoals = await prisma.goal.count({ where: { employeeId: userId, status: "PENDING_APPROVAL" } });
-    stats.completedGoals = await prisma.goal.count({ where: { employeeId: userId, status: "LOCKED" } }); // Using LOCKED as approved
+    const [totalGoals, pendingGoals, completedGoals] = await Promise.all([
+      prisma.goal.count({ where: { employeeId: userId } }),
+      prisma.goal.count({ where: { employeeId: userId, status: "PENDING_APPROVAL" } }),
+      prisma.goal.count({ where: { employeeId: userId, status: "LOCKED" } }),
+    ]);
+    stats.totalGoals = totalGoals;
+    stats.pendingGoals = pendingGoals;
+    stats.completedGoals = completedGoals;
   } else if (role === "MANAGER") {
-    const team = await prisma.user.findMany({ where: { managerId: userId } });
+    const team = await prisma.user.findMany({ where: { managerId: userId }, select: { id: true } });
     const teamIds = team.map(t => t.id);
     stats.teamSize = teamIds.length;
-    stats.totalGoals = await prisma.goal.count({ where: { employeeId: { in: teamIds } } });
-    stats.pendingGoals = await prisma.goal.count({ where: { employeeId: { in: teamIds }, status: "PENDING_APPROVAL" } });
+    const [totalGoals, pendingGoals] = await Promise.all([
+      prisma.goal.count({ where: { employeeId: { in: teamIds } } }),
+      prisma.goal.count({ where: { employeeId: { in: teamIds }, status: "PENDING_APPROVAL" } }),
+    ]);
+    stats.totalGoals = totalGoals;
+    stats.pendingGoals = pendingGoals;
   } else if (role === "ADMIN") {
-    stats.teamSize = await prisma.user.count({ where: { role: "EMPLOYEE" } });
-    stats.totalGoals = await prisma.goal.count();
-    stats.pendingGoals = await prisma.goal.count({ where: { status: "PENDING_APPROVAL" } });
+    const [teamSize, totalGoals, pendingGoals] = await Promise.all([
+      prisma.user.count({ where: { role: "EMPLOYEE" } }),
+      prisma.goal.count(),
+      prisma.goal.count({ where: { status: "PENDING_APPROVAL" } }),
+    ]);
+    stats.teamSize = teamSize;
+    stats.totalGoals = totalGoals;
+    stats.pendingGoals = pendingGoals;
   }
 
   return (

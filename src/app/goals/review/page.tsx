@@ -8,27 +8,21 @@ export default async function ManagerReviewPage() {
   if (!session) redirect("/login");
   if (session.user.role !== "MANAGER") redirect("/dashboard");
 
-  // Get employees reporting to this manager
-  const team = await prisma.user.findMany({
+  // Get employees with pending goals in a single query
+  const teamWithGoals = await prisma.user.findMany({
     where: { managerId: session.user.id },
-    select: { id: true, name: true, email: true }
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      goals: {
+        where: { status: "PENDING_APPROVAL" },
+        orderBy: { createdAt: 'asc' }
+      }
+    }
   });
 
-  const teamIds = team.map(t => t.id);
-
-  // Get all PENDING goals for these employees
-  const pendingGoals = await prisma.goal.findMany({
-    where: { employeeId: { in: teamIds }, status: "PENDING_APPROVAL" },
-    orderBy: { createdAt: 'asc' }
-  });
-
-  // Group goals by employee
-  const employeesWithPending = team.filter(emp => 
-    pendingGoals.some(g => g.employeeId === emp.id)
-  ).map(emp => ({
-    ...emp,
-    goals: pendingGoals.filter(g => g.employeeId === emp.id)
-  }));
+  const employeesWithPending = teamWithGoals.filter(emp => emp.goals.length > 0);
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>

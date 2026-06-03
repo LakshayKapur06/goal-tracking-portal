@@ -5,14 +5,36 @@ import { approveEmployeeGoals, returnForRework } from "@/app/actions/managerActi
 import styles from "./ReviewManager.module.css";
 import { AlertCircle, Check, X } from "lucide-react";
 
-export default function ReviewManager({ employees }: { employees: any[] }) {
+export interface GoalEdit {
+  id: string;
+  target: string;
+  weightage: string;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  thrustArea: string;
+  uomType: string;
+  target: string;
+  weightage: number;
+}
+
+export interface Employee {
+  id: string;
+  name: string | null;
+  email: string | null;
+  goals: Goal[];
+}
+
+export default function ReviewManager({ employees }: { employees: Employee[] }) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   
   // Track edits locally per employee
-  const [edits, setEdits] = useState<Record<string, any[]>>(() => {
-    const initial: Record<string, any[]> = {};
+  const [edits, setEdits] = useState<Record<string, GoalEdit[]>>(() => {
+    const initial: Record<string, GoalEdit[]> = {};
     employees.forEach(emp => {
-      initial[emp.id] = emp.goals.map((g: any) => ({
+      initial[emp.id] = emp.goals.map((g: Goal) => ({
         id: g.id,
         target: g.target,
         weightage: g.weightage.toString()
@@ -21,7 +43,7 @@ export default function ReviewManager({ employees }: { employees: any[] }) {
     return initial;
   });
 
-  const handleEditChange = (empId: string, goalId: string, field: string, value: string) => {
+  const handleEditChange = (empId: string, goalId: string, field: keyof GoalEdit, value: string) => {
     setEdits(prev => ({
       ...prev,
       [empId]: prev[empId].map(g => g.id === goalId ? { ...g, [field]: value } : g)
@@ -32,7 +54,7 @@ export default function ReviewManager({ employees }: { employees: any[] }) {
     const empEdits = edits[empId];
     const totalWeight = empEdits.reduce((sum, g) => sum + parseFloat(g.weightage || "0"), 0);
     
-    if (totalWeight !== 100) {
+    if (Math.abs(totalWeight - 100) > 0.01) {
       alert("Total weightage must be exactly 100% before approving.");
       return;
     }
@@ -41,8 +63,8 @@ export default function ReviewManager({ employees }: { employees: any[] }) {
     try {
       await approveEmployeeGoals(empId, empEdits);
       window.location.reload();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
       setLoadingId(null);
     }
   };
@@ -55,8 +77,8 @@ export default function ReviewManager({ employees }: { employees: any[] }) {
     try {
       await returnForRework(empId, comment);
       window.location.reload();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
       setLoadingId(null);
     }
   };
@@ -75,7 +97,7 @@ export default function ReviewManager({ employees }: { employees: any[] }) {
       {employees.map(emp => {
         const empEdits = edits[emp.id] || [];
         const totalWeight = empEdits.reduce((sum, g) => sum + parseFloat(g.weightage || "0"), 0);
-        const isValid = totalWeight === 100;
+        const isValid = Math.abs(totalWeight - 100) < 0.01;
 
         return (
           <div key={emp.id} className={styles.employeeCard}>
@@ -102,8 +124,8 @@ export default function ReviewManager({ employees }: { employees: any[] }) {
                 </tr>
               </thead>
               <tbody>
-                {emp.goals.map((goal: any) => {
-                  const editState = empEdits.find(e => e.id === goal.id) || { target: goal.target, weightage: goal.weightage };
+                {emp.goals.map((goal: Goal) => {
+                  const editState = empEdits.find(e => e.id === goal.id) || { target: goal.target, weightage: goal.weightage.toString() };
                   return (
                     <tr key={goal.id}>
                       <td>

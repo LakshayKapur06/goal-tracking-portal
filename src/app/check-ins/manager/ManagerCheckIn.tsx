@@ -6,7 +6,29 @@ import { computeProgressScore } from "@/lib/utils";
 import styles from "../CheckIn.module.css";
 import { MessageSquare } from "lucide-react";
 
-export default function ManagerCheckIn({ employees }: { employees: any[] }) {
+export interface CheckIn {
+  id: string;
+  quarter: string;
+  actualAchievement?: string | null;
+  progressStatus: string;
+  managerComment?: string | null;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  uomType: string;
+  target: string;
+  checkIns?: CheckIn[];
+}
+
+export interface Employee {
+  id: string;
+  name: string | null;
+  goals: Goal[];
+}
+
+export default function ManagerCheckIn({ employees }: { employees: Employee[] }) {
   const [activeQuarter, setActiveQuarter] = useState("Q1");
   const [selectedEmpId, setSelectedEmpId] = useState<string>(employees.length > 0 ? employees[0].id : "");
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -22,16 +44,16 @@ export default function ManagerCheckIn({ employees }: { employees: any[] }) {
 
   const selectedEmp = employees.find(e => e.id === selectedEmpId);
 
-  const handleSaveComment = async (checkInId: string, e: any) => {
+  const handleSaveComment = async (checkInId: string, e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const comment = new FormData(e.target).get("comment") as string;
+    const comment = new FormData(e.currentTarget).get("comment") as string;
     
     setLoadingId(checkInId);
     try {
       await saveManagerComment(checkInId, comment);
       window.location.reload();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) alert(err.message);
       setLoadingId(null);
     }
   };
@@ -74,9 +96,9 @@ export default function ManagerCheckIn({ employees }: { employees: any[] }) {
             ))}
           </div>
 
-          {selectedEmp?.goals.map((goal: any) => {
-            const checkIn = goal.checkIns?.find((c: any) => c.quarter === activeQuarter);
-            const score = checkIn ? computeProgressScore(goal.uomType, goal.target, checkIn.actualAchievement) : 0;
+          {selectedEmp?.goals.map((goal: Goal) => {
+            const checkIn = goal.checkIns?.find((c: CheckIn) => c.quarter === activeQuarter);
+            const score = checkIn ? computeProgressScore(goal.uomType, goal.target, checkIn.actualAchievement || "") : 0;
             
             return (
               <div key={goal.id} className={styles.goalCard}>
@@ -116,7 +138,7 @@ export default function ManagerCheckIn({ employees }: { employees: any[] }) {
                       <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><MessageSquare size={16} /> Structured Feedback</label>
                       <textarea 
                         name="comment"
-                        defaultValue={checkIn.managerComment}
+                        defaultValue={checkIn.managerComment || ""}
                         placeholder="Add your review comments here..."
                         rows={2}
                         required

@@ -4,7 +4,13 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
-export async function approveEmployeeGoals(employeeId: string, edits: any[]) {
+export interface GoalEdit {
+  id: string;
+  target: string;
+  weightage: string;
+}
+
+export async function approveEmployeeGoals(employeeId: string, edits: GoalEdit[]) {
   const session = await auth();
   if (!session || session.user.role !== "MANAGER") throw new Error("Unauthorized");
 
@@ -26,7 +32,7 @@ export async function approveEmployeeGoals(employeeId: string, edits: any[]) {
     const originalGoal = goals.find(g => g.id === edit.id);
     if (!originalGoal) continue;
 
-    const changes: any = {};
+    const changes: Record<string, { old: string | number; new: string | number }> = {};
     if (originalGoal.target !== edit.target) changes.target = { old: originalGoal.target, new: edit.target };
     if (originalGoal.weightage !== parseFloat(edit.weightage)) changes.weightage = { old: originalGoal.weightage, new: parseFloat(edit.weightage) };
 
@@ -57,7 +63,7 @@ export async function approveEmployeeGoals(employeeId: string, edits: any[]) {
   });
   
   const totalWeight = finalGoals.reduce((sum, g) => sum + g.weightage, 0);
-  if (totalWeight !== 100) {
+  if (Math.abs(totalWeight - 100) > 0.01) {
     throw new Error(`Total weightage must be 100%. After edits, it is ${totalWeight}%`);
   }
 
